@@ -1,0 +1,8 @@
+version: "3.7"
+
+services:
+  php:
+    container_name: rock_paper_scissors_php_fpm
+    build:
+      context: .
+      dockerfile: image/php/Dockerfile
