@@ -42,8 +42,7 @@ To start the game all you need is to execute the next command:
 ```
 make game-start
 ```
+
 The results will look like:
 
-
-
-
+![Test Image 1](docs/result_example.png)
