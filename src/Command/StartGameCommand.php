@@ -59,10 +59,10 @@ class StartGameCommand extends Command
         }
         $table
             ->addRow(new TableSeparator())
-            ->addRow($this->createTableCell($this->formatPoints($playerA, $playerB, $result)))
+            ->addRow($this->createTableCell($this->formatPoints($playerA, $result->getPlayersPoint()->getPlayerA())))
+            ->addRow($this->createTableCell($this->formatPoints($playerB, $result->getPlayersPoint()->getPlayerB())))
             ->addRow($this->createTableCell($this->formatWinner($result)))
             ->render();
-//        $io->title('Start of the game "Rock paper scissors"');
 
         return Command::SUCCESS;
     }
@@ -78,21 +78,14 @@ class StartGameCommand extends Command
     }
 
     /**
-     * @param Player      $playerA
-     * @param Player      $playerB
-     * @param TotalResult $result
+     * @param Player $player
+     * @param int    $points
      *
      * @return string
      */
-    private function formatPoints(Player $playerA, Player $playerB, TotalResult $result): string
+    private function formatPoints(Player $player, int $points): string
     {
-        return sprintf(
-            "%s: %s\n%s: %s",
-            $playerA,
-            $result->getPlayersPoint()->getPlayerA(),
-            $playerB,
-            $result->getPlayersPoint()->getPlayerB()
-        );
+        return sprintf("%s: %s", $player, $points);
     }
 
     /**
@@ -102,7 +95,7 @@ class StartGameCommand extends Command
      */
     private function formatWinner(TotalResult $result): string
     {
-        $finalRow = 'DRAW';
+        $finalRow = 'Draw';
         if ($result->getWinner() !== null) {
             $finalRow = sprintf(
                 "Winner: %s (+%s pts)",

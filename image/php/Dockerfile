@@ -6,10 +6,7 @@ COPY . /app
 
 WORKDIR /app
 
-#COPY composer.json composer.lock /app/
-
 RUN composer install --no-scripts --no-autoloader
-
 
 RUN composer dump-autoload --optimize && \
 	composer run-script post-install-cmd
