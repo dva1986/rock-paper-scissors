@@ -12,6 +12,7 @@ use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
 use Symfony\Component\Console\Helper\TableSeparator;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -19,16 +20,17 @@ class StartGameCommand extends Command
 {
     protected static $defaultName = 'app:game:start';
 
-    /**
-     * @var int
-     */
-    private $numberOfThrows;
-
-    public function __construct(int $numberOfThrows)
+    protected function configure()
     {
-        $this->numberOfThrows = $numberOfThrows;
-
-        parent::__construct();
+        $this
+            ->addOption(
+                'number_of_throws',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                'How many times should be thrown the shapes',
+                100
+            )
+        ;
     }
 
     /**
@@ -42,10 +44,10 @@ class StartGameCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('Start of the game "Rock paper scissors"');
 
-        $game = new GamePlay($this->numberOfThrows);
+        $game = new GamePlay();
         $game->addPlayer(new Player('Player A', new StaticStrategy()));
         $game->addPlayer(new Player('Player B', new RandomStrategy()));
-        $result = $game->play();
+        $result = $game->play($input->getOption('number_of_throws'));
 
         $table = new Table($output);
         $players = $game->getPlayers();

@@ -1,12 +1,7 @@
-parameters:
-    number_of_throws: 100
-
 services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-        bind:
-            $numberOfThrows: '%number_of_throws%'
 
     App\:
         resource: '../src/'

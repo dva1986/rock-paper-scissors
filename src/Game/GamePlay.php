@@ -10,19 +10,9 @@ use App\Game\Result\TotalResult;
 class GamePlay
 {
     /**
-     * @var int
-     */
-    private $numberOfThrows;
-
-    /**
      * @var array|Player[]
      */
     private $players = [];
-
-    public function __construct(int $numberOfThrows)
-    {
-        $this->numberOfThrows = $numberOfThrows;
-    }
 
     /**
      * @param Player $player
@@ -41,14 +31,16 @@ class GamePlay
     }
 
     /**
+     * @param int $numberOfThrows
+     *
      * @return TotalResult
      */
-    public function play(): TotalResult
+    public function play(int $numberOfThrows): TotalResult
     {
         $stageResults = [];
 
         $points = array_fill(0, count($this->players), 0);
-        for ($throwIn = 1; $throwIn <= $this->numberOfThrows; $throwIn++) {
+        for ($throwIn = 1; $throwIn <= $numberOfThrows; $throwIn++) {
             $shapes = array_map(
                 function(Player $player): ShapeInterface { return $player->getStrategy()->throwShape(); },
                 $this->players

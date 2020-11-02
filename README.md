@@ -15,28 +15,21 @@ Each time Player A and Player B “throw” their selection. The first one alway
 ## System Requirements
 * Docker
 
-## 1. Configuring Game Rules
-Set number_of_throws parameter in the config/services.yaml file:
-```
-parameters:
-    number_of_throws: 100
-```
-
-## 2 Running application
+## 1 Running application
 
 At first you need to run the application using the command
 ```
 make start
 ```
 
-### 2.1. Running Tests
+### 1.1. Running Tests
 
 Run the next command line for tests execution:
 ```
 make test
 ```
 
-### 2.2 Start Game and Analyze Result
+### 1.2 Start Game and Analyze Result
 
 To start the game all you need is to execute the next command:
 ```
