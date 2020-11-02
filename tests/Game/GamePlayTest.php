@@ -106,12 +106,12 @@ class GamePlayTest extends TestCase
                 ->willReturn($shape);
         }
 
-        $gamePlay = new GamePlay(count($thrownShapes));
+        $gamePlay = new GamePlay();
 
         $gamePlay->addPlayer(new Player('Player A', new StaticStrategy()));
         $gamePlay->addPlayer(new Player('Player B', $strategyMock));
 
-        $result = $gamePlay->play();
+        $result = $gamePlay->play(count($thrownShapes));
 
         $points = $result->getPoints();
         $this->assertArrayHasKey(0, $points);
