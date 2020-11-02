@@ -42,26 +42,25 @@ class StartGameCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $io->title('Start of the game "Rock paper scissors"');
 
-        $playerA = new Player('Player A', new StaticStrategy());
-        $playerB = new Player('Player B', new RandomStrategy());
-        $game = new GamePlay($this->numberOfThrows, $playerA, $playerB);
+        $game = new GamePlay($this->numberOfThrows);
+        $game->addPlayer(new Player('Player A', new StaticStrategy()));
+        $game->addPlayer(new Player('Player B', new RandomStrategy()));
         $result = $game->play();
 
         $table = new Table($output);
-        $table->setHeaders(['#', $playerA, $playerB, 'Winner']);
+        $players = $game->getPlayers();
+        $headers = array_merge(['#'], $players, ['Winner']);
+
+        $table->setHeaders($headers);
         foreach ($result->getStageResults() as $stageResult) {
-            $table->addRow([
-                $stageResult->getThrowIn(),
-                $stageResult->getShapeA(),
-                $stageResult->getShapeB(),
-                $stageResult->getWinner()
-            ]);
+            $row = array_merge([$stageResult->getThrowIn()], $stageResult->getShapes(), [$stageResult->getWinner()]);
+            $table->addRow($row);
         }
+
         $table
             ->addRow(new TableSeparator())
-            ->addRow($this->createTableCell($this->formatPoints($playerA, $result->getPlayersPoint()->getPlayerA())))
-            ->addRow($this->createTableCell($this->formatPoints($playerB, $result->getPlayersPoint()->getPlayerB())))
-            ->addRow($this->createTableCell($this->formatWinner($result)))
+            ->addRow($this->createTableCell($this->formatPoints($game->getPlayers(), $result->getPoints()), count($players)))
+            ->addRow($this->createTableCell($this->formatWinner($result), count($players)))
             ->render();
 
         return Command::SUCCESS;
@@ -69,23 +68,29 @@ class StartGameCommand extends Command
 
     /**
      * @param string $string
+     * @param int    $totalPlayers
      *
      * @return array
      */
-    private function createTableCell(string $string): array
+    private function createTableCell(string $string, int $totalPlayers): array
     {
-        return [new TableCell($string, ['colspan' => 4])];
+        return [new TableCell($string, ['colspan' => 2 + $totalPlayers])];
     }
 
     /**
-     * @param Player $player
-     * @param int    $points
+     * @param array $players
+     * @param array $points
      *
      * @return string
      */
-    private function formatPoints(Player $player, int $points): string
+    private function formatPoints(array $players, array $points): string
     {
-        return sprintf("%s: %s", $player, $points);
+        $strArray = [];
+        foreach ($players as $index => $player) {
+            $strArray[] = sprintf("%s: %s", $player, $points[$index] ?? null);
+        }
+
+        return implode("\n", $strArray);
     }
 
     /**
@@ -98,9 +103,8 @@ class StartGameCommand extends Command
         $finalRow = 'Draw';
         if ($result->getWinner() !== null) {
             $finalRow = sprintf(
-                "Winner: %s (+%s pts)",
-                $result->getWinner()->getName(),
-                abs($result->getPlayersPoint()->getPlayerA() - $result->getPlayersPoint()->getPlayerB())
+                "Winner: %s",
+                $result->getWinner()
             );
         }
 

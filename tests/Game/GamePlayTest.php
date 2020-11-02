@@ -106,16 +106,19 @@ class GamePlayTest extends TestCase
                 ->willReturn($shape);
         }
 
-        $gamePlay = new GamePlay(
-            count($thrownShapes),
-            new Player('Player A', new StaticStrategy()),
-            new Player('Player B', $strategyMock)
-        );
+        $gamePlay = new GamePlay(count($thrownShapes));
+
+        $gamePlay->addPlayer(new Player('Player A', new StaticStrategy()));
+        $gamePlay->addPlayer(new Player('Player B', $strategyMock));
 
         $result = $gamePlay->play();
 
-        $this->assertEquals($expectedPointsPlayerA, $result->getPlayersPoint()->getPlayerA());
-        $this->assertEquals($expectedPointsPlayerB, $result->getPlayersPoint()->getPlayerB());
+        $points = $result->getPoints();
+        $this->assertArrayHasKey(0, $points);
+        $this->assertArrayHasKey(1, $points);
+
+        $this->assertEquals($expectedPointsPlayerA, $points[0]);
+        $this->assertEquals($expectedPointsPlayerB, $points[1]);
 
         if ($expectedWinner !== null) {
             $this->assertNotNull($result->getWinner());

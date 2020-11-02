@@ -12,19 +12,19 @@ class TotalResult
     private $stageResults = [];
 
     /**
-     * @var PlayersPoint
+     * @var array|int
      */
-    private $playersPoint;
+    private $points;
 
     /**
      * @var Player|null
      */
     private $winner;
 
-    public function __construct($stageResults, PlayersPoint $playersPoint, ?Player $winner)
+    public function __construct(array $stageResults, array $points, ?Player $winner)
     {
         $this->stageResults = $stageResults;
-        $this->playersPoint = $playersPoint;
+        $this->points = $points;
         $this->winner = $winner;
     }
 
@@ -37,11 +37,11 @@ class TotalResult
     }
 
     /**
-     * @return PlayersPoint
+     * @return array
      */
-    public function getPlayersPoint(): PlayersPoint
+    public function getPoints(): array
     {
-        return $this->playersPoint;
+        return $this->points;
     }
 
     /**

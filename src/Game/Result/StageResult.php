@@ -13,25 +13,19 @@ class StageResult
     private $throwIn;
 
     /**
-     * @var ShapeInterface
+     * @var ShapeInterface|array
      */
-    private $shapeA;
-
-    /**
-     * @var ShapeInterface
-     */
-    private $shapeB;
+    private $shapes;
 
     /**
      * @var Player|null
      */
     private $winner;
 
-    public function __construct(int $throwIn, ShapeInterface $shapeA, ShapeInterface $shapeB, ?Player $winner)
+    public function __construct(int $throwIn, array $shapes, ?Player $winner)
     {
         $this->throwIn = $throwIn;
-        $this->shapeA = $shapeA;
-        $this->shapeB = $shapeB;
+        $this->shapes = $shapes;
         $this->winner = $winner;
     }
 
@@ -44,19 +38,11 @@ class StageResult
     }
 
     /**
-     * @return ShapeInterface
+     * @return array|ShapeInterface[]
      */
-    public function getShapeA(): ShapeInterface
+    public function getShapes(): array
     {
-        return $this->shapeA;
-    }
-
-    /**
-     * @return ShapeInterface
-     */
-    public function getShapeB(): ShapeInterface
-    {
-        return $this->shapeB;
+        return $this->shapes;
     }
 
     /**

@@ -2,8 +2,8 @@
 
 namespace App\Game;
 
+use App\Game\HandShape\ShapeInterface;
 use App\Game\Participant\Player;
-use App\Game\Result\PlayersPoint;
 use App\Game\Result\StageResult;
 use App\Game\Result\TotalResult;
 
@@ -15,20 +15,29 @@ class GamePlay
     private $numberOfThrows;
 
     /**
-     * @var Player
+     * @var array|Player[]
      */
-    private $playerA;
+    private $players = [];
 
-    /**
-     * @var Player
-     */
-    private $playerB;
-
-    public function __construct(int $numberOfThrows, Player $playerA, Player $playerB)
+    public function __construct(int $numberOfThrows)
     {
         $this->numberOfThrows = $numberOfThrows;
-        $this->playerA = $playerA;
-        $this->playerB = $playerB;
+    }
+
+    /**
+     * @param Player $player
+     */
+    public function addPlayer(Player $player)
+    {
+        $this->players[] = $player;
+    }
+
+    /**
+     * @return array|Player[]
+     */
+    public function getPlayers(): array
+    {
+        return $this->players;
     }
 
     /**
@@ -37,40 +46,74 @@ class GamePlay
     public function play(): TotalResult
     {
         $stageResults = [];
-        $pointsPlayerA = $pointsPlayerB = 0;
 
+        $points = array_fill(0, count($this->players), 0);
         for ($throwIn = 1; $throwIn <= $this->numberOfThrows; $throwIn++) {
-            $shapeA = $this->playerA->getStrategy()->throwShape();
-            $shapeB = $this->playerB->getStrategy()->throwShape();
+            $shapes = array_map(
+                function(Player $player): ShapeInterface { return $player->getStrategy()->throwShape(); },
+                $this->players
+            );
 
+            $winnerIndex = $this->getStageWinnerIndex($shapes);
             $winner = null;
-            if ($shapeA->compare($shapeB)) {
-                $winner = $this->playerA;
-                $pointsPlayerA++;
-            } elseif ($shapeB->compare($shapeA)) {
-                $winner = $this->playerB;
-                $pointsPlayerB++;
+            if ($winnerIndex !== null) {
+                $winner = $this->players[$winnerIndex];
+                $points[$winnerIndex]++;
             }
-            $stageResults[] = new StageResult($throwIn, $shapeA, $shapeB, $winner);
+
+            $stageResults[] = new StageResult($throwIn, $shapes, $winner);
         }
 
-        $playersPoint = new PlayersPoint($pointsPlayerA, $pointsPlayerB);
-
-        return new TotalResult($stageResults, $playersPoint, $this->getTotalWinner($playersPoint));
+        return new TotalResult($stageResults, $points, $this->getTotalWinner($points));
     }
 
     /**
-     * @param PlayersPoint $playersPoint
+     * @param array $shapes
+     *
+     * @return int|null
+     */
+    private function getStageWinnerIndex(array $shapes): ?int
+    {
+        $points = [];
+        for ($i = 0; $i < count($this->players); $i++) {
+            for ($j = $i + 1; $j < count($this->players); $j++) {
+                $shape1 = $shapes[$i];
+                $shape2 = $shapes[$j];
+
+                if ($shape1->compare($shape2)) {
+                    $points[] = $i;
+                } elseif ($shape2->compare($shape1)) {
+                    $points[] = $j;
+                }
+            }
+        }
+
+        $winner = array_filter(
+            array_count_values($points),
+            function ($point) {
+                return $point === count($this->players) - 1;
+            }
+        );
+
+        return count($winner) > 0 ? array_key_first($winner) : null;
+    }
+
+    /**
+     * @param array $points
      *
      * @return Player|null
      */
-    private function getTotalWinner(PlayersPoint $playersPoint): ?Player
+    private function getTotalWinner(array $points): ?Player
     {
-        $winner = null;
-        if ($playersPoint->getPlayerA() !== $playersPoint->getPlayerB()) {
-            $winner = $playersPoint->getPlayerA() > $playersPoint->getPlayerB() ? $this->playerA : $this->playerB;
-        }
+        $max = max($points);
 
-        return $winner;
+        $winner = array_filter(
+            $points,
+            function ($point) use ($max) {
+                return $point === $max;
+            }
+        );
+
+        return count($winner) === 1 ? $this->players[array_key_first($winner)] : null;
     }
 }
